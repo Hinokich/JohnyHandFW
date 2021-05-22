@@ -6,6 +6,9 @@
 #include <FlexCAN_T4.h>
 #include "Wire.h"
 
+#define DEBUG true
+#define DEBUG_ISR false
+
 #define CURRENT_SENSOR_OFFSET 1650
 #define CURRENT_SENSOR_RATIO 110
 
@@ -51,7 +54,7 @@
 #ifdef CAN_1
   FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> can;
 #else
-  FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> can;
+  FlexCAN_T4<CAN2, RX_SIZE_256, TX_SIZE_16> can;
 #endif
 
 void initPins(){

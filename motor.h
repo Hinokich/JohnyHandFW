@@ -14,6 +14,7 @@ class Motor{
   Motor(int num, int maxRange, int encoderPin, int speedPin, void ISR(), int currentLimit=MOTOR_DEFAULT_CURRENT_LIMIT, int maximumSpeed = 255, bool isInverted = false); //обычный мотор
   int toPosition(int pos, int velocity = 255);
   int getPosition();
+  int getSpeed();
   void ISR();
   int reset();
   int forward(int spd=255);
@@ -21,14 +22,16 @@ class Motor{
   int stop(); 
   int handle();
   void pushParcel();
+  void setPID(float Kp, float Ki, float Kd);
   
   private:
   int pwmPin;
-  int getSpeed(); //расчет скорости
+  int isrPin;
   int position = 0;
   int speed = 255; //текущая скорость
   int maxSpeed = 255; //макс скорость
   int targetPosition = 0;
+  int deltaTolerance = 10; //окрестность в которой можно отключить моторы остановиться
   bool inverted = false;
   int id = 0;
   int range = MOTOR_DEFAULT_RANGE;
@@ -61,7 +64,8 @@ Motor::Motor(int num, int maxRange, int encoderPin, int speedPin, void ISR(), in
   maxSpeed = maximumSpeed;
   inverted = isInverted;
   curLimit = currentLimit;
-  attachInterrupt(digitalPinToInterrupt(encoderPin), ISR, FALLING);
+  isrPin = encoderPin;
+  attachInterrupt(digitalPinToInterrupt(isrPin), ISR, FALLING);
   }
 
 float Motor::compute(float value){
@@ -77,7 +81,7 @@ float Motor::compute(float value){
     }else{
     Ureal = U;  
     }
-  Serial.printf("%d %d %d %d\n", targetPosition, int(value), int(U), int(Ureal));
+  //Serial.printf("%d %d %d %d\n", targetPosition, int(value), int(U), int(Ureal));
   return Ureal;
   }
 
@@ -92,6 +96,7 @@ int Motor::getPosition(){
   }
 
 int Motor::toPosition(int pos, int velocity){
+  resetPID();
   maxSpeed = velocity;
   targetPosition = pos;
   handle();
@@ -100,6 +105,8 @@ int Motor::toPosition(int pos, int velocity){
 
 int Motor::handle(){
   int curSpeed = int(compute(position));
+  speed = curSpeed;
+  int delta = abs(targetPosition - position);
   if(curSpeed > 0){
     forward(curSpeed);
   }else if(curSpeed < 0){
@@ -113,6 +120,9 @@ int Motor::reset(){
   }
 
 void Motor::ISR(){
+  if(DEBUG_ISR){
+    Serial.printf("ISR ID = %d, ISR Pin = %d\n", id, isrPin);
+  }
   if(direction==-1){
     position--;
     }else if(direction==1){
@@ -161,7 +171,13 @@ void Motor::pushParcel(){
   }
 
 int Motor::getSpeed(){
-  return 0;
+  return speed;
+  }
+
+void Motor::setPID(float Kp, float Ki, float Kd){
+  KP = Kp;
+  KI = Ki;
+  KD = Kd;
   }
 
 Motor motor0(0, 320, ENC_0, PWM_0, ISR_0, 600, 255, false);

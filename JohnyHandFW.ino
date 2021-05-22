@@ -4,6 +4,7 @@
 
 int current[5];
 int dir = 1;
+int target = 250/2;
 IntervalTimer t1;
 void foo();
 
@@ -12,16 +13,21 @@ void setup() {
   initCAN();
   initI2C();
   Serial.begin(115200);
-  t1.begin(foo, 5000000);
+  t1.begin(foo, 1000000);
 }
 
 void loop() {
   motor0.handle();
+  motor1.handle();
+  motor2.handle();
+  motor3.handle();
   updateCurrent(current);
-  //Serial.println(current[0]);
 }
 
 void foo(){
-  motor0.toPosition(35*7*1*dir, 200);
-  dir = dir * -1;
+  target = target * -1;
+  motor0.toPosition(target, 255);
+  motor1.toPosition(target, 255);
+  motor2.toPosition(target, 255);
+  motor3.toPosition(target, 255);
   }
