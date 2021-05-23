@@ -8,6 +8,7 @@
 
 #define DEBUG true
 #define DEBUG_ISR false
+#define DEBUG_CAN true
 
 #define CURRENT_SENSOR_OFFSET 1650
 #define CURRENT_SENSOR_RATIO 110
@@ -50,12 +51,27 @@
 #define I2C_SCL 19
 
 #define CAN_BAUDRATE 250000
+#define CAN_ID_SET 0x2ea
+#define CAN_ID_GET 0x0ea
+#define CAN_ID_STATUS 0x4ea
 
 #ifdef CAN_1
   FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> can;
 #else
   FlexCAN_T4<CAN2, RX_SIZE_256, TX_SIZE_16> can;
 #endif
+
+#define STATUS_IDLE 0
+#define STATUS_POSITION_MODE 1 
+#define STATUS_CANCEL_EMERGENCY 3 
+#define STATUS_NO_CONNECTION 252
+#define STATUS_MALFUNCTION 253
+#define STATUS_CURRENT_OVERFLOW 254
+#define STATUS_EMERGENCY 255
+
+int positionAbsolute[5];
+int positionRelative[5];
+int status = STATUS_NO_CONNECTION;
 
 void initPins(){
   pinMode(ENC_0, INPUT_PULLUP);
@@ -92,5 +108,3 @@ void initUART(){
 void initI2C(){
   Wire.begin();
   }
-
-  

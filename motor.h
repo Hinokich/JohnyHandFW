@@ -23,31 +23,30 @@ class Motor{
   int handle();
   void pushParcel();
   void setPID(float Kp, float Ki, float Kd);
+  int range = MOTOR_DEFAULT_RANGE; //диапазон работы в тактах энкодера
   
   private:
-  int pwmPin;
-  int isrPin;
-  int position = 0;
+  int pwmPin; //пин для ШИМ управления драйвером
+  int isrPin; //пин для прерываний энкодера
+  int position = 0; //текущая позиция
   int speed = 255; //текущая скорость
   int maxSpeed = 255; //макс скорость
-  int targetPosition = 0;
-  int deltaTolerance = 10; //окрестность в которой можно отключить моторы остановиться
-  bool inverted = false;
-  int id = 0;
-  int range = MOTOR_DEFAULT_RANGE;
+  int targetPosition = 0; //целевая позиция
+  bool inverted = false; //инвертирсия управления 
+  int id = 0; //номер мотора в кисти  
   int direction = 0; //-1 движется обратно, 0 стоит на месте, 1 движется вперед
-  int curLimit = MOTOR_DEFAULT_CURRENT_LIMIT;
-  byte forwardMask[4] = {0b01000000, 0b00010000, 0b00000100, 0b00000001}; //bitwise OR
-  byte backwardMask[4] = {0b10000000, 0b00100000, 0b00001000, 0b00000010}; //bitwise OR
-  byte clearMask[4] = {0b00111111, 0b11001111, 0b11110011, 0b11111100}; //bitwise AND
+  int curLimit = MOTOR_DEFAULT_CURRENT_LIMIT; //ток остановки
+  byte forwardMask[4] = {0b01000000, 0b00010000, 0b00000100, 0b00000001}; //побитовое ИЛИ
+  byte backwardMask[4] = {0b10000000, 0b00100000, 0b00001000, 0b00000010}; //побитовое ИЛИ
+  byte clearMask[4] = {0b00111111, 0b11001111, 0b11110011, 0b11111100}; //побитовое И
   //сброс маски при помощи clearMask останавливает мотор, установка обеих масок движения переводит мотор в удержание
 
-  //PID related
+  //для PID-регулятора
   float compute(float value);
   void resetPID();
-  float KP = 1.0f; //1.0f best
-  float KI = 0.00007f; //0.00007f best
-  float KD = 5.0f; //5.0f best
+  float KP = 1.0f; //1.0f лучшее
+  float KI = 0.00007f; //0.00007f лучшее
+  float KD = 5.0f; //5.0f лучшее
   float P;
   float I;
   float D;
@@ -81,7 +80,6 @@ float Motor::compute(float value){
     }else{
     Ureal = U;  
     }
-  //Serial.printf("%d %d %d %d\n", targetPosition, int(value), int(U), int(Ureal));
   return Ureal;
   }
 
@@ -184,6 +182,24 @@ Motor motor0(0, 320, ENC_0, PWM_0, ISR_0, 600, 255, false);
 Motor motor1(1, 320, ENC_1, PWM_1, ISR_1, 600, 255, true);
 Motor motor2(2, 320, ENC_2, PWM_2, ISR_2, 600, 255, false);
 Motor motor3(3, 320, ENC_3, PWM_3, ISR_3, 600, 255, true);
+
+void stopAllMotors(){
+  motor0.stop();
+  motor1.stop();
+  motor2.stop();
+  motor3.stop();
+  }
+
+void calculatePosition(){
+  positionAbsolute[0] = motor0.getPosition();
+  positionAbsolute[1] = motor0.getPosition();
+  positionAbsolute[2] = motor0.getPosition();
+  positionAbsolute[3] = motor0.getPosition();
+  positionRelative[0] = map(positionAbsolute[0], 0, motor0.range, 0, 255);
+  positionRelative[1] = map(positionAbsolute[0], 0, motor0.range, 0, 255);
+  positionRelative[2] = map(positionAbsolute[0], 0, motor0.range, 0, 255);
+  positionRelative[3] = map(positionAbsolute[0], 0, motor0.range, 0, 255);
+  }
 
 void ISR_0(){
   motor0.ISR();

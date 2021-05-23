@@ -1,33 +1,48 @@
 #include "config.h"
 #include "current.h"
 #include "motor.h"
+#include "canhandler.h"
 
 int current[5];
-int dir = 1;
-int target = 250/2;
-IntervalTimer t1;
-void foo();
+int defaultSpeed = 150;
 
 void setup() {
   initPins();
   initCAN();
   initI2C();
   Serial.begin(115200);
-  t1.begin(foo, 1000000);
 }
 
-void loop() {
-  motor0.handle();
-  motor1.handle();
-  motor2.handle();
-  motor3.handle();
-  updateCurrent(current);
+void loop() {  
+  calculatePosition();
+  
+  if(checkIncomingData()){
+    proceedIncomingData();
+    if((status == STATUS_IDLE)or(status == STATUS_POSITION_MODE)){
+      if(updateNewPosition){
+        motor0.toPosition(newPosition[0], defaultSpeed);
+        motor1.toPosition(newPosition[1], defaultSpeed);
+        motor2.toPosition(newPosition[2], defaultSpeed);
+        motor3.toPosition(newPosition[3], defaultSpeed);
+        updateNewPosition = false;
+        }
+      }
+    }
+    
+  switch(status){
+    case 0:{
+      stopAllMotors();
+      break;
+      }
+    case 1:{
+      motor0.handle();
+      motor1.handle();
+      motor2.handle();
+      motor3.handle();
+      break;
+      }
+    default:{
+      stopAllMotors();
+      }
+    }
 }
-
-void foo(){
-  target = target * -1;
-  motor0.toPosition(target, 255);
-  motor1.toPosition(target, 255);
-  motor2.toPosition(target, 255);
-  motor3.toPosition(target, 255);
-  }
