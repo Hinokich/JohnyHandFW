@@ -13,6 +13,7 @@ class Motor{
   public:
   Motor(int num, int maxRange, int encoderPin, int speedPin, void ISR(), int currentLimit=MOTOR_DEFAULT_CURRENT_LIMIT, int maximumSpeed = 255, bool isInverted = false); //обычный мотор
   int toPosition(int pos, int velocity = 255);
+  int toAbsolutePosition(int pos, int velocity);
   int getPosition();
   int getSpeed();
   void ISR();
@@ -94,6 +95,14 @@ int Motor::getPosition(){
   }
 
 int Motor::toPosition(int pos, int velocity){
+  resetPID();
+  maxSpeed = velocity;
+  targetPosition = map(pos, 0, 255, 0, range);
+  handle();
+  return pos;
+}
+
+int Motor::toAbsolutePosition(int pos, int velocity){
   resetPID();
   maxSpeed = velocity;
   targetPosition = pos;
