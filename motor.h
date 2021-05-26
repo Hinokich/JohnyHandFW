@@ -113,7 +113,6 @@ int Motor::toAbsolutePosition(int pos, int velocity){
 int Motor::handle(){
   int curSpeed = int(compute(position));
   speed = curSpeed;
-  int delta = abs(targetPosition - position);
   if(curSpeed > 0){
     forward(curSpeed);
   }else if(curSpeed < 0){
@@ -187,10 +186,10 @@ void Motor::setPID(float Kp, float Ki, float Kd){
   KD = Kd;
   }
 
-Motor motor0(0, 320, ENC_0, PWM_0, ISR_0, 600, 255, false);
-Motor motor1(1, 320, ENC_1, PWM_1, ISR_1, 600, 255, true);
-Motor motor2(2, 320, ENC_2, PWM_2, ISR_2, 600, 255, false);
-Motor motor3(3, 320, ENC_3, PWM_3, ISR_3, 600, 255, true);
+Motor motor0(0, MOTOR_DEFAULT_RANGE, ENC_0, PWM_0, ISR_0, 600, 255, false);
+Motor motor1(1, MOTOR_DEFAULT_RANGE, ENC_1, PWM_1, ISR_1, 600, 255, true);
+Motor motor2(2, MOTOR_DEFAULT_RANGE, ENC_2, PWM_2, ISR_2, 600, 255, false);
+Motor motor3(3, MOTOR_DEFAULT_RANGE, ENC_3, PWM_3, ISR_3, 600, 255, true);
 
 void stopAllMotors(){
   motor0.stop();

@@ -1,6 +1,7 @@
 #include "config.h"
 #include "current.h"
 #include "motor.h"
+#include "thumb.h"
 #include "canhandler.h"
 
 int current[5];
@@ -24,6 +25,7 @@ void loop() {
         motor1.toPosition(newPosition[1], defaultSpeed);
         motor2.toPosition(newPosition[2], defaultSpeed);
         motor3.toPosition(newPosition[3], defaultSpeed);
+        motor4.toPosition(newPosition[4], defaultSpeed);
         updateNewPosition = false;
         }
       }
@@ -39,6 +41,7 @@ void loop() {
       motor1.handle();
       motor2.handle();
       motor3.handle();
+      motor4.handle();
       break;
       }
     default:{
