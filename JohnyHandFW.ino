@@ -16,7 +16,6 @@ void setup() {
 
 void loop() {  
   calculatePosition();
-  
   if(checkIncomingData()){
     proceedIncomingData();
     if((status == STATUS_IDLE)or(status == STATUS_POSITION_MODE)){

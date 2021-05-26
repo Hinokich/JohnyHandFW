@@ -1,10 +1,12 @@
 #include "config.h"
+#include "thumb.h"
 #include <Wire.h>
 
 void ISR_0();
 void ISR_1();
 void ISR_2();
 void ISR_3();
+void ISR_4();
 
 byte muxParcel = 0b00000000;
 byte muxAdr = MOTOR_MUX_ADDRESS;
@@ -190,23 +192,27 @@ Motor motor0(0, MOTOR_DEFAULT_RANGE, ENC_0, PWM_0, ISR_0, 600, 255, false);
 Motor motor1(1, MOTOR_DEFAULT_RANGE, ENC_1, PWM_1, ISR_1, 600, 255, true);
 Motor motor2(2, MOTOR_DEFAULT_RANGE, ENC_2, PWM_2, ISR_2, 600, 255, false);
 Motor motor3(3, MOTOR_DEFAULT_RANGE, ENC_3, PWM_3, ISR_3, 600, 255, true);
+Thumb motor4(4, MOTOR_THUMB_RANGE, ENC_4, PWM_4, ISR_4, 600, 255, false, THUMB_0, THUMB_1);
 
 void stopAllMotors(){
   motor0.stop();
   motor1.stop();
   motor2.stop();
   motor3.stop();
+  motor4.stop();
   }
 
 void calculatePosition(){
   positionAbsolute[0] = motor0.getPosition();
-  positionAbsolute[1] = motor0.getPosition();
-  positionAbsolute[2] = motor0.getPosition();
-  positionAbsolute[3] = motor0.getPosition();
+  positionAbsolute[1] = motor1.getPosition();
+  positionAbsolute[2] = motor2.getPosition();
+  positionAbsolute[3] = motor3.getPosition();
+  positionAbsolute[4] = motor4.getPosition();
   positionRelative[0] = map(positionAbsolute[0], 0, motor0.range, 0, 255);
-  positionRelative[1] = map(positionAbsolute[0], 0, motor0.range, 0, 255);
-  positionRelative[2] = map(positionAbsolute[0], 0, motor0.range, 0, 255);
-  positionRelative[3] = map(positionAbsolute[0], 0, motor0.range, 0, 255);
+  positionRelative[1] = map(positionAbsolute[1], 0, motor1.range, 0, 255);
+  positionRelative[2] = map(positionAbsolute[2], 0, motor2.range, 0, 255);
+  positionRelative[3] = map(positionAbsolute[3], 0, motor3.range, 0, 255);
+  positionRelative[4] = map(positionAbsolute[4], 0, motor4.range, 0, 255);
   }
 
 void ISR_0(){
@@ -223,4 +229,8 @@ void ISR_2(){
 
 void ISR_3(){
   motor3.ISR();
+  }
+
+void ISR_4(){
+  motor4.ISR();
   }
