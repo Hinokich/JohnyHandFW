@@ -5,7 +5,9 @@
 #include "canhandler.h"
 
 int current[5];
-int defaultSpeed = 150;
+int defaultSpeed = 255;
+bool doReset = true;
+
 
 void setup() {
   initPins();
@@ -19,6 +21,14 @@ void loop() {
   if(checkIncomingData()){
     proceedIncomingData();
     if((status == STATUS_IDLE)or(status == STATUS_POSITION_MODE)){
+      if(doReset){
+        doReset = false;
+        motor0.reset();
+        motor1.reset();
+        motor2.reset();
+        motor3.reset();
+        motor4.reset();
+        }
       if(updateNewPosition){
         motor0.toPosition(newPosition[0], defaultSpeed);
         motor1.toPosition(newPosition[1], defaultSpeed);

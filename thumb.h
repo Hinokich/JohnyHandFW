@@ -83,6 +83,13 @@ void Thumb::resetPID(){
   errorPrev = 0;
   }
 
+int Thumb::reset(){
+  backward(maxSpeed/2);
+  delay(400);
+  stop();
+  position = 0;
+  }
+
 int Thumb::getPosition(){
   return position;
   }
@@ -113,10 +120,6 @@ int Thumb::handle(){
   }
   return 0;
 }
-
-int Thumb::reset(){
-  return 0;
-  }
 
 void Thumb::ISR(){
   if(DEBUG_ISR){

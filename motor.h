@@ -92,6 +92,13 @@ void Motor::resetPID(){
   errorPrev = 0;
   }
 
+int Motor::reset(){
+  backward(maxSpeed/2);
+  delay(400);
+  stop();
+  position = 0;
+  }
+
 int Motor::getPosition(){
   return position;
   }
@@ -122,10 +129,6 @@ int Motor::handle(){
   }
   return 0;
 }
-
-int Motor::reset(){
-  return 0;
-  }
 
 void Motor::ISR(){
   if(DEBUG_ISR){
