@@ -47,7 +47,7 @@ class Motor{
   //для PID-регулятора
   float compute(float value);
   void resetPID();
-  float KP = 1.0f; //1.0f лучшее
+  float KP = 4.0f; //1.0f лучшее
   float KI = 0.00007f; //0.00007f лучшее
   float KD = 5.0f; //5.0f лучшее
   float P;
@@ -195,7 +195,7 @@ Motor motor0(0, MOTOR_DEFAULT_RANGE, ENC_0, PWM_0, ISR_0, 600, 255, false);
 Motor motor1(1, MOTOR_DEFAULT_RANGE, ENC_1, PWM_1, ISR_1, 600, 255, true);
 Motor motor2(2, MOTOR_DEFAULT_RANGE, ENC_2, PWM_2, ISR_2, 600, 255, false);
 Motor motor3(3, MOTOR_DEFAULT_RANGE, ENC_3, PWM_3, ISR_3, 600, 255, true);
-Thumb motor4(4, MOTOR_THUMB_RANGE, ENC_4, PWM_4, ISR_4, 600, 255, false, THUMB_0, THUMB_1);
+Thumb motor4(4, MOTOR_THUMB_RANGE, ENC_4, PWM_4, ISR_4, 600, 255, true, THUMB_0, THUMB_1);
 
 void stopAllMotors(){
   motor0.stop();

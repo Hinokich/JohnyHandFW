@@ -1,7 +1,14 @@
 #include "config.h"
 
+int buffer[9]; //ID + 8 data bytes
+
 CAN_message_t msgIn; //для входящих сообщений
 CAN_message_t msgOut; //для исходящих сообщений
+
+String msgInSerial;
+String msgOutSerial;
+
+int proceedData();
 int proceedCommand();
 int proceedStatus();
 int turnOff();
@@ -9,21 +16,45 @@ int emergencyStop();
 int emergencyCancel();
 
 
-bool checkIncomingData(){
+bool incomingSerial(){
+  return Serial.available();
+  }
+
+bool incomingCAN(){
   return can.read(msgIn);
   }
 
-int proceedIncomingData(){
-  short id = msgIn.id;
-  int len = msgIn.len;
-  int returnStatus = 0;
-  if(DEBUG_CAN){
-    Serial.printf("ID=0x%04x, Len=%d, Data:", id, len);
-    for(int i=0; i<len; i++){
-      Serial.printf(" %d", msgIn.buf[i]);
-      }
-    Serial.printf("\n");
+int proceedSerial(){
+  msgInSerial = Serial.readString();
+  char buf[2];
+  char bufID[4];
+  for(int i=0; i<4; i++){
+    bufID[i] = msgInSerial.charAt(i);
     }
+  buffer[0] = strtoul(bufID, NULL, 16);
+  for(int i=1; i<9; i++){
+    buf[0] = msgInSerial.charAt(i*2 + 2);
+    buf[1] = msgInSerial.charAt(i*2 + 3);
+    buffer[i] = strtoul(buf, NULL, 16);
+    }
+  Serial.printf("ID: 0x%02x, data: ", buffer[0]);
+  for(int i=1; i<9; i++){
+    Serial.printf("0x%02x ", buffer[i]);
+    }
+  Serial.printf("\n");
+  proceedData();
+  }
+
+int proceedCAN(){
+  buffer[0] = msgIn.id;
+  for(int i=0; i<8; i++){
+    buffer[i+1]=msgIn.buf[i];
+    }
+  proceedData();
+  }
+
+int proceedData(){
+  int id = buffer[0];
   switch(id){
     case CAN_ID_SET: {
       proceedCommand();
@@ -36,16 +67,14 @@ int proceedIncomingData(){
     default:{
       if(DEBUG_CAN){
         Serial.printf("Unknown ID=0x%04x\n", id);
-        returnStatus = -1;
         }
       break;
       }
     }
-    return returnStatus;
   }
 
 int proceedCommand(){
-  int flag = msgIn.buf[0];
+  int flag = buffer[1];
   updateNewPosition = false;
   switch(flag){
     case STATUS_IDLE:{
@@ -59,7 +88,7 @@ int proceedCommand(){
       if((status == STATUS_IDLE) or (status == STATUS_POSITION_MODE)){
         status = STATUS_POSITION_MODE;
         for(int i=0; i<5; i++){
-          newPosition[i] = msgIn.buf[i+1];
+          newPosition[i] = buffer[i+2];
           }
         updateNewPosition = true;
         }
@@ -69,7 +98,7 @@ int proceedCommand(){
       if((status == STATUS_IDLE) or (status == STATUS_POSITION_MODE)){
         status = STATUS_POSITION_MODE;
         for(int i=0; i<5; i++){ 
-          int positionID = msgIn.buf[1]; //там лежит ID жеста 
+          int positionID = buffer[2]; //там лежит ID жеста 
           newPosition[i] = positionLibrary[positionID][i]; //берем жест из библиотеки жестов
           }
         updateNewPosition = true;
@@ -93,10 +122,17 @@ int proceedCommand(){
 int proceedStatus(){
   msgOut.id = CAN_ID_STATUS;
   msgOut.buf[0] = status;
+  String bufOut;
+  bufOut += "04ea";
   for(int i=0; i<5; i++){
-    msgOut.buf[i+1] = positionRelative[i];
+    int temp_rPos = positionRelative[i];
+    msgOut.buf[i+1] = temp_rPos;
+    char temp_buf[2];
+    sprintf(temp_buf, "%02x", temp_rPos); 
+    bufOut += temp_buf;
     }
   can.write(msgOut);
+  Serial.println(bufOut);
   return 0;
   }
 

@@ -51,7 +51,7 @@
 #define I2C_SDA 18
 #define I2C_SCL 19
 
-#define CAN_BAUDRATE 250000
+#define CAN_BAUDRATE 1000000
 #define CAN_ID_SET 0x2ea
 #define CAN_ID_GET 0x0ea
 #define CAN_ID_STATUS 0x4ea
@@ -64,15 +64,23 @@
 
 #define STATUS_IDLE 0
 #define STATUS_POSITION_MODE 1 
+#define STATUS_LIBRARY_MODE 2
 #define STATUS_CANCEL_EMERGENCY 3 
 #define STATUS_NO_CONNECTION 252
 #define STATUS_MALFUNCTION 253
 #define STATUS_CURRENT_OVERFLOW 254
 #define STATUS_EMERGENCY 255
 
+int status = STATUS_NO_CONNECTION;
+bool updateNewPosition = false;
+int newPosition[5];
 int positionAbsolute[5];
 int positionRelative[5];
-int status = STATUS_NO_CONNECTION;
+int positionLibrary[5][5] = {0,0,0,0,0, 
+                            255, 255, 255, 255, 255, 
+                            255, 255, 255, 0, 0,
+                            0, 255, 255, 0, 0,
+                            255, 255, 0, 255, 0};
 
 void initPins(){
   pinMode(ENC_0, INPUT_PULLUP);

@@ -17,7 +17,7 @@ class Thumb{
   int stop(); 
   int handle();
   void setPID(float Kp, float Ki, float Kd);
-  int range = MOTOR_DEFAULT_RANGE; //диапазон работы в тактах энкодера
+  int range = MOTOR_THUMB_RANGE; //диапазон работы в тактах энкодера
   
   private:
   int pA;

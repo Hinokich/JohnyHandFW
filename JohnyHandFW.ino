@@ -2,10 +2,12 @@
 #include "current.h"
 #include "motor.h"
 #include "thumb.h"
-#include "canhandler.h"
+#include "datahandler.h"
+//#include "canhandler.h"
 
 int current[5];
-int defaultSpeed = 255;
+int defaultSpeed = 250;
+int defaultHandler();
 bool doReset = true;
 
 
@@ -18,9 +20,37 @@ void setup() {
 
 void loop() {  
   calculatePosition();
-  if(checkIncomingData()){
-    proceedIncomingData();
-    if((status == STATUS_IDLE)or(status == STATUS_POSITION_MODE)){
+  if(incomingCAN()){
+    proceedCAN();
+    defaultHandler();
+  }
+    
+  if(incomingSerial()){
+    proceedSerial();
+    defaultHandler();
+  }
+ 
+  switch(status){
+    case STATUS_IDLE:{
+      stopAllMotors();
+      break;
+      }
+    case STATUS_POSITION_MODE:{
+      motor0.handle();
+      motor1.handle();
+      motor2.handle();
+      motor3.handle();
+      motor4.handle();
+      break;
+      }
+    default:{
+      stopAllMotors();
+      }
+    }
+}
+
+int defaultHandler(){
+  if((status == STATUS_IDLE)or(status == STATUS_POSITION_MODE)){
       if(doReset){
         doReset = false;
         motor0.reset();
@@ -38,23 +68,4 @@ void loop() {
         updateNewPosition = false;
         }
       }
-    }
-    
-  switch(status){
-    case 0:{
-      stopAllMotors();
-      break;
-      }
-    case 1:{
-      motor0.handle();
-      motor1.handle();
-      motor2.handle();
-      motor3.handle();
-      motor4.handle();
-      break;
-      }
-    default:{
-      stopAllMotors();
-      }
-    }
-}
+  }
